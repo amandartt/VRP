@@ -1,0 +1,82 @@
+#include "../include/instanceFileReader.h"
+#include <cstring>
+#include <cstdlib>
+#include <stdio.h>
+#include <math.h>
+
+InstanceFileReader::InstanceFileReader(const char* filename)
+{
+	fileRead = fopen(filename, "rt");
+	this->filename = std::string(filename);
+	if(!fileRead){/*Erro*/
+		printf("File %s not found.\n", filename);
+		exit(-1);
+	}
+	cout << filename << endl;
+}
+
+int InstanceFileReader::getCapacitated(){
+    return this->capacitated;
+}
+
+void InstanceFileReader::setCapacitated(int n){
+    this->capacitated = n;
+}
+
+double InstanceFileReader::getDurationTimeNode(int n){
+	return this->nodes[n].getDurationTime();
+}
+
+double InstanceFileReader::getInitialTimeNode(int n){
+	return this->nodes[n].getInitialTime();
+}
+	
+double InstanceFileReader::getEndTimeNode(int n){
+	return this->nodes[n].getEndTime();
+}
+
+const char* InstanceFileReader::getFilename(){
+	return this->filename.c_str();
+}
+
+int InstanceFileReader::getNumNodes(){
+	return this->numNodes;
+}
+
+void InstanceFileReader::setNumNodes(int n){
+	this->numNodes = n;
+}
+
+
+void InstanceFileReader::readFile(){
+
+    char string[100];
+	int numVeiculos=0, capacidade=0;
+	//Eliminar as 4 primeiras linhas.
+	for(int i=0; i<4; i++){
+	    fscanf(fileRead, "%s", string);
+	}
+    fscanf(fileRead, "%i %i\n", &numVeiculos, &capacidade);
+    this->numVehicles = numVeiculos;
+    this->capacitated = capacidade;
+    cout << "veiculos " << numVeiculos << "   capacidade " << capacidade << endl; 
+    //Eliminar as 4 seguintes linhas, pega por string ¬¬.
+	for(int i=0; i<12; i++){
+	    fscanf(fileRead, "%s \n", string);
+	}
+    
+    int idNode=0, coorx=0, coory=0, demanda=0, ti=0, tf=0, ts=0;   
+    
+    while(fscanf(fileRead, "%i %i %i %i %i %i %i" , &idNode, &coorx, &coory, &demanda, &ti, &tf, &ts) != EOF){			
+		Nodes n(idNode, ti, tf, ts, demanda, coorx, coory);
+	    cout << idNode << " " << coorx << " " << coory << " " << demanda << " " << ti << " " << tf << " " << ts << endl;
+		this->nodes.push_back(n);
+	}
+	this->numNodes = idNode+1; //Número de clientes mais o depósito e o depósito virtual.
+	//Add depósito virtual, igual ao primeiro nodo. (depósito 0)
+	Nodes n(idNode+1, nodes[0].getInitialTime(), nodes[0].getEndTime(), nodes[0].getDurationTime(), nodes[0].getDemand(), nodes[0].getCoordX(), nodes[0].getCoordY());
+   cout << idNode+1 << " " <<  nodes[0].getCoordX() << " " << nodes[0].getCoordY() << " " << nodes[0].getDemand() << " " << nodes.at(0).getInitialTime() << " " << nodes.at(0).getEndTime() << " " <<  nodes.at(0).getDurationTime() << " " <<endl;
+	
+    fclose(this->fileRead);
+	
+}

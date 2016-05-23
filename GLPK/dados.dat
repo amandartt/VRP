@@ -1,0 +1,29 @@
+data;
+
+set N := 0 1 2 3 4 .. n+1;
+set C := 1 ... n;
+set V := 1 2 3 ... ;
+
+param a:= 2 4 6 7 8 9... Niniciojanela;
+param b:= 6 7 8 9 2 ... nfimjanela;
+
+param c: 1 2 3 4 5 ... n :=
+       1 23 56 78 9 ...
+       2
+       3
+       4
+       ...
+       n;
+
+param t: 1 2 3 4 5 ... n :=
+       1 23 56 78 9 ...
+       2
+       3
+       4
+       ...
+       n;
+
+
+param d:= 23 5 6 7 8 ... n;
+param q:= 200;
+param m:25;
