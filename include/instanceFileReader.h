@@ -33,7 +33,7 @@ public:
 	void readFile();
 	void calculateCost();
     void calculateT();
-	void createGLPKDataFile(const char* glpkFileName);
+	void createGLPKDataFile();
 	
 };
 

@@ -115,17 +115,17 @@ void InstanceFileReader::calculateT(){
 	}
 }
 
-void InstanceFileReader::createGLPKDataFile(const char* glpkFileName){
+void InstanceFileReader::createGLPKDataFile(){
 
 	cout << "data;" << endl;
 	cout << "set N:= ";
-	for(int i=0; i<this->numNodes+2; i++){
+	for(int i=0; i<this->numNodes+1; i++){
 		cout << i << " ";
 	}
 	cout << ";" << endl;
 
 	cout << "set C:= ";
-	for(int i=1; i<this->numNodes+1; i++){
+	for(int i=1; i<this->numNodes; i++){
 		cout << i << " ";
 	}
 	cout << ";" << endl;
