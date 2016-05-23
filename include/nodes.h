@@ -1,6 +1,8 @@
 #ifndef _NODES_H
 #define _NODES_H
 
+using namespace std;
+
 class Nodes {
 private:
 	int id;

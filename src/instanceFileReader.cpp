@@ -4,15 +4,14 @@
 #include <stdio.h>
 #include <math.h>
 
-InstanceFileReader::InstanceFileReader(const char* filename)
-{
+InstanceFileReader::InstanceFileReader(const char* filename){
 	fileRead = fopen(filename, "rt");
 	this->filename = std::string(filename);
 	if(!fileRead){/*Erro*/
 		printf("File %s not found.\n", filename);
 		exit(-1);
 	}
-	cout << filename << endl;
+	//cout << filename << endl;
 }
 
 int InstanceFileReader::getCapacitated(){
@@ -35,9 +34,9 @@ double InstanceFileReader::getEndTimeNode(int n){
 	return this->nodes[n].getEndTime();
 }
 
-const char* InstanceFileReader::getFilename(){
+/*const char* InstanceFileReader::getFilename(){
 	return this->filename.c_str();
-}
+}*/
 
 int InstanceFileReader::getNumNodes(){
 	return this->numNodes;
@@ -46,7 +45,6 @@ int InstanceFileReader::getNumNodes(){
 void InstanceFileReader::setNumNodes(int n){
 	this->numNodes = n;
 }
-
 
 void InstanceFileReader::readFile(){
 
@@ -59,7 +57,7 @@ void InstanceFileReader::readFile(){
     fscanf(fileRead, "%i %i\n", &numVeiculos, &capacidade);
     this->numVehicles = numVeiculos;
     this->capacitated = capacidade;
-    cout << "veiculos " << numVeiculos << "   capacidade " << capacidade << endl; 
+    //cout << "veiculos " << numVeiculos << "   capacidade " << capacidade << endl; 
     //Eliminar as 4 seguintes linhas, pega por string ¬¬.
 	for(int i=0; i<12; i++){
 	    fscanf(fileRead, "%s \n", string);
@@ -69,14 +67,140 @@ void InstanceFileReader::readFile(){
     
     while(fscanf(fileRead, "%i %i %i %i %i %i %i" , &idNode, &coorx, &coory, &demanda, &ti, &tf, &ts) != EOF){			
 		Nodes n(idNode, ti, tf, ts, demanda, coorx, coory);
-	    cout << idNode << " " << coorx << " " << coory << " " << demanda << " " << ti << " " << tf << " " << ts << endl;
+	    //cout << idNode << " " << coorx << " " << coory << " " << demanda << " " << ti << " " << tf << " " << ts << endl;
 		this->nodes.push_back(n);
 	}
 	this->numNodes = idNode+1; //Número de clientes mais o depósito e o depósito virtual.
 	//Add depósito virtual, igual ao primeiro nodo. (depósito 0)
 	Nodes n(idNode+1, nodes[0].getInitialTime(), nodes[0].getEndTime(), nodes[0].getDurationTime(), nodes[0].getDemand(), nodes[0].getCoordX(), nodes[0].getCoordY());
-   cout << idNode+1 << " " <<  nodes[0].getCoordX() << " " << nodes[0].getCoordY() << " " << nodes[0].getDemand() << " " << nodes.at(0).getInitialTime() << " " << nodes.at(0).getEndTime() << " " <<  nodes.at(0).getDurationTime() << " " <<endl;
+	this->nodes.push_back(n);
+    //cout << idNode+1 << " " <<  nodes[0].getCoordX() << " " << nodes[0].getCoordY() << " " << nodes[0].getDemand() << " " << nodes.at(0).getInitialTime() << " " << nodes[0].getEndTime() << " " <<  nodes[0].getDurationTime() << " " <<endl;
 	
     fclose(this->fileRead);
-	
+	this->calculateCost();
+	this->calculateT();
 }
+
+void InstanceFileReader::calculateCost(){
+
+	cost.resize(numNodes+2, vector<double>(numNodes+2,0)); 
+	
+	for (int i=0; i<this->numNodes+1; i++){
+		//cout << i << " " ;
+		for (int j=0; j<this->numNodes+1; j++){
+			if(i==j){
+				this->cost[i][j] = 0.0;
+				//cout << "0" << "  ";
+			}else{
+				//Equação de cálculo de distância (hipotenusa) como apresentado no artigo.
+				double eq1 = pow( (this->nodes[i].getCoordX() - this->nodes[j].getCoordX()), 2 );
+				double eq2 = pow( (this->nodes[i].getCoordY() - this->nodes[j].getCoordY()), 2 );
+				double result = (floor( 10 * (sqrt(eq1 + eq2))))/10.0;
+				this->cost[i][j] = result;
+				this->cost[j][i] = result;
+				//cout << result << "  ";
+			}
+		}
+		//cout << endl;
+	}
+}
+
+void InstanceFileReader::calculateT(){
+	t.resize(numNodes+2, vector<double>(numNodes+2,0)); 
+	
+	for (int i=0; i<this->numNodes+1; i++){
+		for (int j=0; j<this->numNodes+1; j++){
+			t[i][j] = this->cost[i][j] + this->nodes[i].getDurationTime();
+		}
+	}
+}
+
+void InstanceFileReader::createGLPKDataFile(const char* glpkFileName){
+
+	cout << "data;" << endl;
+	cout << "set N:= ";
+	for(int i=0; i<this->numNodes+2; i++){
+		cout << i << " ";
+	}
+	cout << ";" << endl;
+
+	cout << "set C:= ";
+	for(int i=1; i<this->numNodes+1; i++){
+		cout << i << " ";
+	}
+	cout << ";" << endl;
+
+	cout << "set V:= ";
+	for(int i=1; i<this->numVehicles+1; i++){
+		cout << i << " ";
+	}
+	cout << ";" << endl;
+
+	cout << "param G:= 100000;" << endl; //Podemos calcular isso!!!
+
+	cout << "param a:= " << endl;
+	for(int i=0; i<this->numNodes+1; i++){
+		cout << i << " " << this->nodes[i].getInitialTime() << endl;
+	}
+	cout << ";" << endl;
+
+	cout << "param b:= " << endl;
+	for(int i=0; i<this->numNodes+1; i++){
+		cout << i << " " << this->nodes[i].getEndTime() << endl;
+	}
+	cout << ";" << endl;
+
+	cout << "param c: " << endl;
+	for(int i=0; i<this->numNodes+1; i++){
+		cout << i << " ";
+	}
+	cout << ":=" << endl;
+	for(int i=0; i<this->numNodes+1; i++){
+		cout << i << " ";
+		for(int j=0; j<this->numNodes+1; j++){
+			cout << this->cost[i][j] << " ";
+		}
+		cout << endl;
+	}
+	cout << ";" << endl;
+
+	cout << "param t: " << endl;
+	for(int i=0; i<this->numNodes+1; i++){
+		cout << i << " ";
+	}
+	cout << ":=" << endl;
+	for(int i=0; i<this->numNodes+1; i++){
+		cout << i << " ";
+		for(int j=0; j<this->numNodes+1; j++){
+			cout << this->t[i][j] << " ";
+		}
+		cout << endl;
+	}
+	cout << ";" << endl;
+	cout << "param d:= " << endl;
+	for(int i=1; i<this->numNodes; i++){
+		cout << i << " " << this->nodes[i].getDemand() << endl;
+	}
+	cout << ";" << endl;
+
+	cout << "param q:= " << this->capacitated << ";" << endl;
+	cout << "param m:= " << this->numVehicles << ";" << endl;
+	cout << "end;" << endl;
+	
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
