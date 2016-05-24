@@ -13,7 +13,7 @@ param n := card(C); #número de clientes, n=|C|.
 param G, integer;
 
 var x{i in N, j in N, k in V: i!=j and i!=n+1 and j!=0}, binary; #Binária
-var s{i in N, k in V}; 
+var s{i in N, k in V}, integer; 
 
 minimize obj: sum{k in V, i in N, j in N: i!=j and i!=n+1 and j!=0} c[i,j] * x[i,j,k];
 
