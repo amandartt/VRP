@@ -96,6 +96,7 @@ void InstanceFileReader::calculateCost(){
 				double eq1 = pow( (this->nodes[i].getCoordX() - this->nodes[j].getCoordX()), 2 );
 				double eq2 = pow( (this->nodes[i].getCoordY() - this->nodes[j].getCoordY()), 2 );
 				double result = (floor( 10 * (sqrt(eq1 + eq2))))/10.0;
+				result = result*10; //para deixar a variável inteira
 				this->cost[i][j] = result;
 				this->cost[j][i] = result;
 				//cout << result << "  ";
