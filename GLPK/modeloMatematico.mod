@@ -2,11 +2,11 @@ set N;
 set C;
 set V;
 
-param a{i in N}; #Início da janela do cliente i.
-param b{i in N}; #Fim da janela do cliente i.
-param c{i in N, j in N}; #Custo da viajem do cliente i ao cliente j.
-param t{i in N, j in N}; #Soma do custo de i a j e o tempo de atendimento do cliente i.
-param d{i in C}; #demanda do cliente i.
+param a{i in N}, integer; #Início da janela do cliente i.
+param b{i in N}, integer; #Fim da janela do cliente i.
+param c{i in N, j in N}, integer; #Custo da viajem do cliente i ao cliente j.
+param t{i in N, j in N}, integer; #Soma do custo de i a j e o tempo de atendimento do cliente i.
+param d{i in C}, integer; #demanda do cliente i.
 param q, integer; #capacidade dos veículos.
 param m, integer; #número máximo da veículos.
 param n := card(C); #número de clientes, n=|C|.
