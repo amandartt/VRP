@@ -10,8 +10,8 @@ class Solution {
 private:
 	vector<Route*> routes;
 	double totalCost;
-	//double delayedArrivalCost;
-	//int overCapacitated;
+	double delayedArrivalCost;
+	int overCapacitated;
 	Instance* instancia;
 	vector<double> initialServiceTime; //vetor de st = tempo de inicio de serviço em cada cliente.
 
@@ -20,9 +20,10 @@ public:
 	void insertRoute(Route* newRoute);	
 	double getTotalCost();
 	void setTotalCost(double t);
-	//int getOverCapacitated();
-	//void setOverCapacitated(int c);
-	//double getDelayedArrivalCost();
+	int getOverCapacitated();
+	void setOverCapacitated(int c);
+	double getDelayedArrivalCost();
+    void setDelayedArrivalCost(double t);
 	Route* getRoute(int i);
 	void calculateTimeServiceAndFaults(int i, int j, int v);
 	void printSolution();
