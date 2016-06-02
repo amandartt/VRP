@@ -13,20 +13,13 @@ Instance::Instance(const char* filename){
 	}
 }
 
-Node* Instance::getNode(int n){
-    return this->nodes[n];
+Nodes* Instance::getNode(int n){
+    Nodes* auxNodo = &this->nodes[n];
+	return auxNodo;
 }
 
 int Instance::getNumVehicles(){
 	return this->numVehicles;
-}
-
-double Instance::getInitialServiceTimeNode(int n){
-	return this->nodes[n].getInitialServiceTime();
-}
-
-void Instance::setInitialServiceTimeNode(int n, double time){
-	this->nodes[n].setInitialServiceTime(time);
 }
 
 int Instance::getCapacitated(){

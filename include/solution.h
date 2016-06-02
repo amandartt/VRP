@@ -9,19 +9,23 @@ using namespace std;
 class Solution {
 private:
 	vector<Route*> routes;
-	double totalTime;
-	double delayedArrivalCost;
+	double totalCost;
+	//double delayedArrivalCost;
+	//int overCapacitated;
 	Instance* instancia;
+	vector<double> initialServiceTime; //vetor de st = tempo de inicio de serviço em cada cliente.
 
 public:
 	Solution(Instance* i);
 	void insertRoute(Route* newRoute);	
-	double getTotalTime();
-	double getDelayedArrivalCost();
+	double getTotalCost();
+	void setTotalCost(double t);
+	//int getOverCapacitated();
+	//void setOverCapacitated(int c);
+	//double getDelayedArrivalCost();
 	Route* getRoute(int i);
-	void setTotalTime(double t);
-	double calculateInitialTime(int i, int j, int r); //calcula tempo (relativo a uma rota) que o serviço começa no nodo j, ou seja: t anterior + t de serviço de i + t de custo de i a j
-	void atualizaTime(int i, int j, int r); //atualiza tempos de inicio do nodo, tempo total da rota e as infrações.
+	void calculateTimeServiceAndFaults(int i, int j, int v);
+	void printSolution();
 	
 
 }; 

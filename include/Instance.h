@@ -28,8 +28,6 @@ public:
 	double getDurationTimeNode(int n);
 	double getInitialTimeNode(int n);
 	double getEndTimeNode(int n);
-	double getInitialServiceTimeNode(int n);
-	void setInitialServiceTimeNode(int n, double time); //seta o tempo que o serviço começa no nodo.
 	double getCost(int i, int j);
 	int getNumNodes();
 	Nodes* getNode(int n);

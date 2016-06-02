@@ -12,12 +12,19 @@ private:
 	vector<int> backward;
 	double lateCost; //custo total de atraso, incluindo o de chegar no depósito.
 	double totalTime; //tempo total da rota
+	int totalCapacitated; //capacidade da rota
 	int overCapacitated;
 
 public:
 	Route(int n);
 	int getForward(int indice);
 	int getBackward(int indice);
+	int getTotalCapacitated();
+	void setTotalCapacitated(int c);
+	int getOverCapacitated();
+	void setOverCapacitated(int c);
+	double getLateCost();
+	void setLateCost(double c);
 	void setForward(int indice, int valor);
 	void setBackward(int indice, int valor);
 	double getTotalTime();

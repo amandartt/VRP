@@ -12,7 +12,6 @@ private:
 	int demand;
 	int coordX;
 	int coordY;
-	double initialServiceTime;
 
 public:
 	Nodes(int id, int initialTime, int endTime, int durationTime, int demand, int coordX, int coordY);
@@ -23,8 +22,6 @@ public:
 	int getInitialTime();
 	int getEndTime();
 	int getDurationTime(); 
-	double getInitialServiceTime();
-	void setInitialServiceTime(double time);
 
 };
 

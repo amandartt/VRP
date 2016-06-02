@@ -8,15 +8,6 @@ Nodes::Nodes(int id, int initialTime, int endTime, int durationTime, int demand,
 	this->demand = demand;
 	this->coordX = coordX;
 	this->coordY = coordY;
-	this->initialServiceTime = 0;
-}
-
-double Nodes::getInitialServiceTime(){
-    return this->initialServiceTime;
-}
-
-void Nodes::setInitialServiceTime(double time){
-    this->initialServiceTime = time;
 }
 
 int Nodes::getCoordX(){
