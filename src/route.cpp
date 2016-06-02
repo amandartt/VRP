@@ -6,7 +6,8 @@ Route::Route(int n) {
 	forward.resize(n, NODE_NOT_IN_ROUTE); //Inicializa com nodos -1, não com 0 pq o depósito é 0.
 	backward.resize(n, NODE_NOT_IN_ROUTE);
 	this->lateCost = 0;
-	this->totalTime = 0;	
+	this->totalTime = 0;
+	this->overCapacitated = 0;	
 }
 
 int Route::getForward(int indice){
@@ -30,6 +31,8 @@ double Route::getTotalTime(){
 
 void Route::setTotalTime(double time){
 	this->totalTime = time;
-}	
+}
+
+
 
 

@@ -12,6 +12,7 @@ private:
 	vector<int> backward;
 	double lateCost; //custo total de atraso, incluindo o de chegar no depósito.
 	double totalTime; //tempo total da rota
+	int overCapacitated;
 
 public:
 	Route(int n);
