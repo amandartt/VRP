@@ -41,7 +41,7 @@ void Solution::setTotalCost(double t){
     this->totalCost = t;
 }
 
-//atualizar tempo de atendimento do nodo, tempo total da rota e infactibilidades (cap. e janela) TODO: ADICIONAR PENALIZAÇÕES NA SOLUÇÃO
+//atualizar tempo de atendimento do nodo, tempo total da rota e infactibilidades (cap. e janela)
 void Solution::calculateTimeServiceAndFaults(int i, int j, int v){
 
     this->setTotalCost(this->getTotalCost() + this->instancia->getCost(i,j));
@@ -52,18 +52,16 @@ void Solution::calculateTimeServiceAndFaults(int i, int j, int v){
 	if(this->initialServiceTime[j] <= this->instancia->getNode(j)->getInitialTime()){
 		this->initialServiceTime[j] = this->instancia->getNode(j)->getInitialTime();
 	}else if(this->initialServiceTime[j] > this->instancia->getNode(j)->getEndTime()){
-		double diffService = (this->initialServiceTime[j] + this->instancia->getDurationTimeNode(j)) - this->instancia->getNode(j)->getEndTime();
+		double diffService = this->initialServiceTime[j] - this->instancia->getNode(j)->getEndTime();
 		this->routes[v]->setLateCost( routes[v]->getLateCost() + diffService); //add penalizaçao na rota
 		this->delayedArrivalCost += diffService; //add penalização de atraso na solução, soma das penalizações de todas as rotas.
 	}
-
 	this->routes[v]->setTotalTime(this->initialServiceTime[j]); //atualiza tempo total da rota
 
 	this->routes[v]->setTotalCapacitated( this->routes[v]->getTotalCapacitated() +  this->instancia->getNode(j)->getDemand()); //atualiza capacidade da rota
-
 	if(this->routes[v]->getTotalCapacitated() > this->instancia->getCapacitated()){ //se ultrapassou a capacidade permitida
 		int diffCapacitated = this->routes[v]->getTotalCapacitated() - this->instancia->getCapacitated();
-		this->routes[v]->setOverCapacitated(diffCapacitated );//add penalização da rota
+		this->routes[v]->setOverCapacitated(diffCapacitated );//add penalização  de capacidade na rota
 		if(diffCapacitated > this->instancia->getNode(j)->getDemand()){
 		    this->overCapacitated += this->instancia->getNode(j)->getDemand(); //add penalização de excesso de carga na solução,soma das penalizações de todas as rotas.
 		}else{

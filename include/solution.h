@@ -25,7 +25,7 @@ public:
 	double getDelayedArrivalCost();
     void setDelayedArrivalCost(double t);
 	Route* getRoute(int i);
-	void calculateTimeServiceAndFaults(int i, int j, int v);
+	void calculateTimeServiceAndFaults(int i, int j, int v); //Não acho que faça parte dessa classe, usada apenas para a construtiva.
 	void printSolution();
 	
 
