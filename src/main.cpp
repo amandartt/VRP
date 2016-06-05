@@ -34,7 +34,7 @@ Solution simulatedAnnealing(double alfa, Solution s, double t0, int maxIterTemp)
 	while(T > 0.00001){
 		while(iterTemp < maxIterTemp){
 			iterTemp += 1;
-			auxSolution  = nb->interRoutes(auxSolution); //gera vizinho inter-rota aleatoriamente
+			auxSolution  = nb->interRoutes(s); //gera vizinho inter-rota aleatoriamente
 	        auxSolution.forcaBrutaRecalculaSolution(); //calculando por enquanto na força bruta.
 			delta = auxSolution.getTotalCost() - s.getTotalCost();
 			if(delta < 0){ //se a solução gerada é melhor que a antiga
