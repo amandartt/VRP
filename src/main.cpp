@@ -2,6 +2,7 @@
 #include "../include/nodes.h"
 #include "../include/route.h"
 #include "../include/solution.h"
+#include "../include/neighborhood.h"
 #include <iostream>
 #include <vector>
 #include <cstdlib>
@@ -19,6 +20,7 @@ Instance *instance = NULL;
 	t0 = temperatura inicial
 	maxIterTemp = numero maximo de iterações com a mesma temperatura*/
 Solution simulatedAnnealing(double alfa, Solution s, double t0, int maxIterTemp){
+
 	Solution bestSolution(instance);
 	bestSolution = s;
 	Solution auxSolution(instance);
@@ -26,9 +28,8 @@ Solution simulatedAnnealing(double alfa, Solution s, double t0, int maxIterTemp)
 	int T = t0;
 	double x;
 	double delta;
-	srand (time(NULL));
 
-	while(T > 0,0001){
+	while(T > 0.0001){
 		while(iterTemp < maxIterTemp){
 			iterTemp += 1;
 			//auxSolution = gera vizinho aleatoriamente(s)
@@ -56,7 +57,6 @@ Solution construction(){
     
     Solution initialSolution(instance);
 	int veiculos = instance->getNumVehicles();
-	srand (time(NULL));
 
 	for(int k=0; k<veiculos; k++){ //abrir rota para todos os veículos 
 		Route* route = new Route(instance->getNumNodes()+1);	
@@ -93,10 +93,19 @@ Solution construction(){
 
 
 int main(int argc, char** argv){
+
+    time_t seconds;
+	time(&seconds);
+    srand((unsigned int) seconds);
     instance = new Instance(argv[1]); //Parâmetro 1: nome do arquivo de instância para ser lido.
+    Neighborhood* nb = new Neighborhood(instance);
+
     instance->readFile();
 	//instance->createGLPKinstanceFile();
 	Solution s = construction();
+	s = nb->interRoutes(s);
+	s.forcaBrutaRecalculaSolution();
+	s.printSolution();
 
 	return 0;
 }

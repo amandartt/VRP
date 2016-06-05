@@ -8,7 +8,16 @@ Route::Route(int n) {
 	this->lateCost = 0;
 	this->totalTime = 0;
 	this->totalCapacitated = 0;
-	this->overCapacitated = 0;	
+	this->overCapacitated = 0;
+	this->totalCostRoute = 0;
+}
+
+double Route::getTotalCostRoute(){
+    return this->totalCostRoute;
+}
+
+void Route::setTotalCostRoute(double time){
+    this->totalCostRoute = time;
 }
 
 int Route::getOverCapacitated(){
