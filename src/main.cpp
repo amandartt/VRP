@@ -24,20 +24,24 @@ Solution simulatedAnnealing(double alfa, Solution s, double t0, int maxIterTemp)
 	Solution bestSolution(instance);
 	bestSolution = s;
 	Solution auxSolution(instance);
+	auxSolution = bestSolution;
+	Neighborhood* nb = new Neighborhood(instance);
 	double iterTemp = 0;
-	int T = t0;
+	double T = t0;
 	double x;
 	double delta;
 
-	while(T > 0.0001){
+	while(T > 0.00001){
 		while(iterTemp < maxIterTemp){
 			iterTemp += 1;
-			//auxSolution = gera vizinho aleatoriamente(s)
+			auxSolution  = nb->interRoutes(auxSolution); //gera vizinho inter-rota aleatoriamente
+	        auxSolution.forcaBrutaRecalculaSolution(); //calculando por enquanto na força bruta.
 			delta = auxSolution.getTotalCost() - s.getTotalCost();
 			if(delta < 0){ //se a solução gerada é melhor que a antiga
 				s = auxSolution;
 				if(s.getTotalCost() < bestSolution.getTotalCost()){ //se a solução gerada é melhor que a melhor já encontrada
 					bestSolution = s;
+					cout << "Custo melhor solução :  " << bestSolution.getTotalCost() << endl;
 				}
 			}else{ //verifica a probabilidade de aceitar a piora
 				x = (rand() % 100)/100; //0 a 0,99
@@ -98,13 +102,11 @@ int main(int argc, char** argv){
 	time(&seconds);
     srand((unsigned int) seconds);
     instance = new Instance(argv[1]); //Parâmetro 1: nome do arquivo de instância para ser lido.
-    Neighborhood* nb = new Neighborhood(instance);
 
     instance->readFile();
 	//instance->createGLPKinstanceFile();
 	Solution s = construction();
-	s = nb->interRoutes(s);
-	s.forcaBrutaRecalculaSolution();
+	s = simulatedAnnealing(0.9, s, 1000000, 10000); //double alfa, Solution s, double t0, int maxIterTemp
 	s.printSolution();
 
 	return 0;

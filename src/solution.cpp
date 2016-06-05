@@ -88,12 +88,10 @@ void Solution::forcaBrutaRecalculaSolution(){
     
         int i =0;
         int j= this->getRoute(v)->getForward(i);
-        cout << "i: " << i << "  j: " << j << endl;
         while(j != this->instancia->getNumNodes()){
             calculateTimeServiceAndFaults(i, j, v);
             i = j;
             j = this->getRoute(v)->getForward(i); 
-            cout << "i: " << i << "  j: " << j << endl;
         }
         calculateTimeServiceAndFaults(i, j, v); 
     }
@@ -122,6 +120,7 @@ void Solution::printSolution(){
 	cout << "Custo da solução: " << this->totalCost << endl;
 	cout << "Penalidade atraso: " << this->delayedArrivalCost << endl;
 	cout << "Penalidade de excesso de carga: " << this->overCapacitated << endl;
+	cout << endl << "*******************************************************" << endl << endl;
 
 }
 
