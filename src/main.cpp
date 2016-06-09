@@ -14,6 +14,49 @@ using namespace std;
 
 Instance *instance = NULL;
 
+/* Mecanismo auto-adaptativo para determinar temperatura inicial
+	beta = taxa de aumento da temperatura (1.1)
+	alfa = taxa mínima de aceitação de soluções vizinhas (0.9)
+	s = solução
+	maxIterTemp = max iteração (no artigo usam o mesmo que o numero de clientes)
+	t0 = temperatura de partida (2)
+*/
+double initialTemperature(double beta, double alfa, Solution s, int maxIterTemp, double t0){
+	double T = t0; //temperatura corrente.
+	Neighborhood* nb = new Neighborhood(instance);
+	bool continua = true; //
+	int aceitos = 0; //número de vizinhos aceitos na temperatura T
+	Solution auxSolution(instance);
+	double delta = 0;
+	double x;
+
+	while (continua){
+		aceitos = 0;
+		for(int i=0; i<maxIterTemp; i++){
+			auxSolution  = nb->interRoutes(s); //gera vizinho inter-rota aleatoriamente
+	        auxSolution.forcaBrutaRecalculaSolution(); //calculando por enquanto na força bruta.
+			delta = auxSolution.getTotalCost() - s.getTotalCost();
+			if(delta < 0){
+				aceitos++;
+			}else{ //verifica a probabilidade de aceitar a piora
+				x = (rand() % 100)/100; //0 a 0,99
+				if(x < exp(-delta/T)){ //constante k?
+					aceitos++;
+				}
+			}
+		}
+
+		if(aceitos > alfa * maxIterTemp){
+			continua = false;
+		}else{
+			T = beta * T;
+		}	
+	}
+	t0 = T;
+	return t0;
+}
+
+
 /*Simulated annealing, parametros:
 	alfa = taxa de decresciment da temperatura, [0,1] 
 	s = melhor solucao encontrada
@@ -106,7 +149,9 @@ int main(int argc, char** argv){
     instance->readFile();
 	//instance->createGLPKinstanceFile();
 	Solution s = construction();
-	s = simulatedAnnealing(0.9, s, 1000000, 10000); //double alfa, Solution s, double t0, int maxIterTemp
+	double t0 = initialTemperature(1.2, 0.95, s, instance->getNumNodes(), 2);
+	cout << "temperatura inicial: " << t0 << endl;
+	s = simulatedAnnealing(0.998, s, t0, instance->getNumNodes()); //double alfa, Solution s, double t0, int maxIterTemp
 	s.printSolution();
 
 	return 0;
