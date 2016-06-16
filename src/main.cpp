@@ -73,17 +73,29 @@ Solution simulatedAnnealing(double alfa, Solution s, double t0, int maxIterTemp)
 	double T = t0;
 	double x;
 	double delta;
+	double forcabruta=0, porrota=0;
 
 	while(T > 0.00001){
 		while(iterTemp < maxIterTemp){
 			iterTemp += 1;
-			auxSolution  = nb->interRoutes(s); //gera vizinho inter-rota aleatoriamente
+			auxSolution  = nb->interRoutes(s); //gera vizinho inter-rota aleatoriamente			
+			//porrota = auxSolution.getTotalCost();
+
 	        auxSolution.forcaBrutaRecalculaSolution(); //calculando por enquanto na força bruta.
+			//forcabruta = auxSolution.getTotalCost();
+
+			/*if(forcabruta != porrota){
+				cout << "forcabruta: " << forcabruta << "  porrota " << porrota << endl;
+				exit(0);
+			}*/
+			
 			delta = auxSolution.getTotalCost() - s.getTotalCost();
 			if(delta < 0){ //se a solução gerada é melhor que a antiga
 				s = auxSolution;
 				if(s.getTotalCost() < bestSolution.getTotalCost()){ //se a solução gerada é melhor que a melhor já encontrada
 					bestSolution = s;
+					cout << "****atraso  " << bestSolution.getDelayedArrivalCost() << endl;
+					cout << "****capacidade " << bestSolution.getOverCapacitated() << endl;
 					cout << "Custo melhor solução :  " << bestSolution.getTotalCost() << endl;
 				}
 			}else{ //verifica a probabilidade de aceitar a piora
@@ -96,6 +108,7 @@ Solution simulatedAnnealing(double alfa, Solution s, double t0, int maxIterTemp)
 		T = T*alfa;
 		iterTemp = 0;
 	}
+	
 	return bestSolution;
 }
 
@@ -150,8 +163,12 @@ int main(int argc, char** argv){
 	//instance->createGLPKinstanceFile();
 	Solution s = construction();
 	double t0 = initialTemperature(1.2, 0.95, s, instance->getNumNodes(), 2);
-	cout << "temperatura inicial: " << t0 << endl;
+	//cout << "temperatura inicial: " << t0 << endl;
 	s = simulatedAnnealing(0.998, s, t0, instance->getNumNodes()); //double alfa, Solution s, double t0, int maxIterTemp
+	
+	cout << endl << "----------------- SOLUCAO FINAL ---------------------------" << endl << endl;
+
+	
 	s.printSolution();
 
 	return 0;
