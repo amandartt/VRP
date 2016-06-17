@@ -65,50 +65,45 @@ double initialTemperature(double beta, double alfa, Solution s, int maxIterTemp,
 Solution simulatedAnnealing(double alfa, Solution s, double t0, int maxIterTemp){
 
 	Solution bestSolution(instance);
+	Solution standartSolution(instance);
+	standartSolution = s;
 	bestSolution = s;
 	Solution auxSolution(instance);
-	auxSolution = bestSolution;
+	auxSolution = s;
 	Neighborhood* nb = new Neighborhood(instance);
 	double iterTemp = 0;
 	double T = t0;
 	double x;
 	double delta;
-	double forcabruta=0, porrota=0;
 
 	while(T > 0.00001){
 		while(iterTemp < maxIterTemp){
 			iterTemp += 1;
+			standartSolution = s;
 			auxSolution  = nb->interRoutes(s); //gera vizinho inter-rota aleatoriamente			
-			//porrota = auxSolution.getTotalCost();
-
 	        auxSolution.forcaBrutaRecalculaSolution(); //calculando por enquanto na força bruta.
-			//forcabruta = auxSolution.getTotalCost();
-
-			/*if(forcabruta != porrota){
-				cout << "forcabruta: " << forcabruta << "  porrota " << porrota << endl;
-				exit(0);
-			}*/
+	        
 			
 			delta = auxSolution.getTotalCost() - s.getTotalCost();
 			if(delta < 0){ //se a solução gerada é melhor que a antiga
 				s = auxSolution;
-				if(s.getTotalCost() < bestSolution.getTotalCost()){ //se a solução gerada é melhor que a melhor já encontrada
-					bestSolution = s;
-					cout << "****atraso  " << bestSolution.getDelayedArrivalCost() << endl;
-					cout << "****capacidade " << bestSolution.getOverCapacitated() << endl;
-					cout << "Custo melhor solução :  " << bestSolution.getTotalCost() << endl;
+				if(auxSolution.getTotalCost() < bestSolution.getTotalCost()){ //se a solução gerada é melhor que a melhor já encontrada
+					bestSolution = auxSolution;
+					bestSolution.printSolution();
 				}
 			}else{ //verifica a probabilidade de aceitar a piora
 				x = (rand() % 100)/100; //0 a 0,99
 				if(x < exp(-delta/T)){ //constante k?
 					s = auxSolution;
+				}else{
+				    s = standartSolution; //retorna a solução anterior;  
 				}
 			}
 		}
 		T = T*alfa;
 		iterTemp = 0;
 	}
-	
+    auxSolution.printSolution();
 	return bestSolution;
 }
 
@@ -117,11 +112,6 @@ Solution construction(){
     
     Solution initialSolution(instance);
 	int veiculos = instance->getNumVehicles();
-
-	for(int k=0; k<veiculos; k++){ //abrir rota para todos os veículos 
-		Route* route = new Route(instance->getNumNodes()+1);	
-		initialSolution.insertRoute(route);
-	}
 	
 	for(int c=1; c<instance->getNumNodes(); c++){
 	    int v = rand() % veiculos;
@@ -147,6 +137,7 @@ Solution construction(){
 	}
 	//Adcionar a função objetivo os custo das infactibilidades de capacidade janela de tempo.
 	initialSolution.setTotalCost(initialSolution.getTotalCost() + 1000*initialSolution.getDelayedArrivalCost() + 1000*initialSolution.getOverCapacitated());
+    cout << endl << "----------------- SOLUCAO INICIAL ---------------------------" << endl << endl;
 	initialSolution.printSolution();   
 	return initialSolution;    	
 }
@@ -162,13 +153,14 @@ int main(int argc, char** argv){
     instance->readFile();
 	//instance->createGLPKinstanceFile();
 	Solution s = construction();
+
 	double t0 = initialTemperature(1.2, 0.95, s, instance->getNumNodes(), 2);
 	//cout << "temperatura inicial: " << t0 << endl;
+
 	s = simulatedAnnealing(0.998, s, t0, instance->getNumNodes()); //double alfa, Solution s, double t0, int maxIterTemp
-	
+    s.forcaBrutaRecalculaSolution();
 	cout << endl << "----------------- SOLUCAO FINAL ---------------------------" << endl << endl;
 
-	
 	s.printSolution();
 
 	return 0;

@@ -8,7 +8,7 @@ using namespace std;
 
 class Solution {
 private:
-	vector<Route*> routes;
+	vector<Route> routes;
 	double totalCost;
 	double delayedArrivalCost;
 	int overCapacitated;
@@ -17,7 +17,6 @@ private:
 
 public:
 	Solution(Instance* i);
-	void insertRoute(Route* newRoute);	
 	double getTotalCost();
 	void setTotalCost(double t);
 	int getOverCapacitated();

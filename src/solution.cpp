@@ -3,10 +3,17 @@
 
 Solution::Solution(Instance* i){
     this->instancia = i;
-    this->delayedArrivalCost = 0;
-    this->totalCost = 0;
-	this->initialServiceTime.resize(this->instancia->getNumNodes()+1, 0);
+    this->delayedArrivalCost = 0.0;
+    this->totalCost = 0.0;
+	this->initialServiceTime.resize(this->instancia->getNumNodes()+1, 0.0);
 	this->overCapacitated = 0;
+	
+	int veiculos = this->instancia->getNumVehicles();
+
+	for(int k=0; k<veiculos; k++){ //abrir rota para todos os veículos 
+		Route route(this->instancia->getNumNodes()+1);	
+		routes.push_back(route);
+    }	
 }
 
 int Solution::getOverCapacitated(){
@@ -25,16 +32,12 @@ void Solution::setDelayedArrivalCost(double t){
     this->delayedArrivalCost = t;
 }
 
-void Solution::insertRoute(Route* newRoute){
-	routes.push_back(newRoute);
-}
-
 double Solution::getTotalCost(){
     return this->totalCost;
 }
 
 Route* Solution::getRoute(int i){
-    return this->routes[i];
+    return &this->routes[i];
 }
 
 void Solution::setTotalCost(double t){
@@ -55,15 +58,15 @@ void Solution::calculateTimeServiceAndFaults(int i, int j, int v){
 		this->initialServiceTime[j] = this->instancia->getNode(j)->getInitialTime();
 	}else if(this->initialServiceTime[j] > this->instancia->getNode(j)->getEndTime()){
 		double diffService = this->initialServiceTime[j] - this->instancia->getNode(j)->getEndTime();
-		this->routes[v]->setLateCost( routes[v]->getLateCost() + diffService); //add penalizaçao na rota
+		this->routes[v].setLateCost( routes[v].getLateCost() + diffService); //add penalizaçao na rota
 		this->delayedArrivalCost += diffService; //add penalização de atraso na solução, soma das penalizações de todas as rotas.
 	}
-	this->routes[v]->setTotalTime(this->initialServiceTime[j]); //atualiza tempo total da rota
+	this->routes[v].setTotalTime(this->initialServiceTime[j]); //atualiza tempo total da rota
 
-	this->routes[v]->setTotalCapacitated( this->routes[v]->getTotalCapacitated() +  this->instancia->getNode(j)->getDemand()); //atualiza capacidade da rota
-	if(this->routes[v]->getTotalCapacitated() > this->instancia->getCapacitated()){ //se ultrapassou a capacidade permitida
-		int diffCapacitated = this->routes[v]->getTotalCapacitated() - this->instancia->getCapacitated();
-		this->routes[v]->setOverCapacitated(diffCapacitated );//add penalização  de capacidade na rota
+	this->routes[v].setTotalCapacitated( this->routes[v].getTotalCapacitated() +  this->instancia->getNode(j)->getDemand()); //atualiza capacidade da rota
+	if(this->routes[v].getTotalCapacitated() > this->instancia->getCapacitated()){ //se ultrapassou a capacidade permitida
+		int diffCapacitated = this->routes[v].getTotalCapacitated() - this->instancia->getCapacitated();
+		this->routes[v].setOverCapacitated(diffCapacitated );//add penalização  de capacidade na rota
 		if(diffCapacitated > this->instancia->getNode(j)->getDemand()){
 		    this->overCapacitated += this->instancia->getNode(j)->getDemand(); //add penalização de excesso de carga na solução,soma das penalizações de todas as rotas.
 		}else{
@@ -83,11 +86,11 @@ void Solution::recalculateSolutionOnlyRoute(int v){
 }
 
 void Solution::calculaRotaSolution(int v){
-	this->getRoute(v)->setLateCost(0); //custo total de atraso, incluindo o de chegar no depósito.
-    this->getRoute(v)->setTotalTime(0); //tempo total da rota.
+	this->getRoute(v)->setLateCost(0.0); //custo total de atraso, incluindo o de chegar no depósito.
+    this->getRoute(v)->setTotalTime(0.0); //tempo total da rota.
     this->getRoute(v)->setTotalCapacitated(0); //capacidade da rota.
     this->getRoute(v)->setOverCapacitated(0); //capacidade excedida da rota.
-    this->getRoute(v)->setTotalCostRoute(0);
+    this->getRoute(v)->setTotalCostRoute(0.0);
 
     int i =0;
     int j= this->getRoute(v)->getForward(i);
@@ -102,28 +105,31 @@ void Solution::calculaRotaSolution(int v){
 void Solution::forcaBrutaRecalculaSolution(){
 
     this->delayedArrivalCost = 0;
-    this->totalCost = 0;
-	this->initialServiceTime.resize(this->instancia->getNumNodes()+1, 0);
+    this->totalCost = 0.0;
+	this->initialServiceTime.resize(this->instancia->getNumNodes()+1, 0.0);
 	this->overCapacitated = 0;
 
     for(int v=0; v<this->instancia->getNumVehicles(); v++){
     	this->calculaRotaSolution(v);
     } 
+    /*cout << ">>>>atraso  " << this->getDelayedArrivalCost() << endl;
+    cout << ">>>>capacidade " << this->getOverCapacitated() << endl;
+	cout << ">>>>Custo melhor solução :  " << this->getTotalCost() << endl;*/
     this->setTotalCost(this->getTotalCost() + 1000 * this->getDelayedArrivalCost() + 1000 * this->getOverCapacitated());
 }
 
 void Solution::printSolution(){
 
 	for(int r=0; r<this->instancia->getNumVehicles(); r++){
-		cout << "Total Time da rota: " << this->routes[r]->getTotalTime() << endl;
-		cout << "Atrasos da rota: " << this->routes[r]->getLateCost() << endl;
-		cout << "excesso de capacidade da rota: " << this->routes[r]->getOverCapacitated() << endl;
+		cout << "Total Time da rota: " << this->routes[r].getTotalTime() << endl;
+		cout << "Atrasos da rota: " << this->routes[r].getLateCost() << endl;
+		cout << "excesso de capacidade da rota: " << this->routes[r].getOverCapacitated() << endl;
 		for(int c=0; c<this->instancia->getNumNodes()+1; c++){
-			cout << this->routes[r]->getForward(c) << " " ;
+			cout << this->routes[r].getForward(c) << " " ;
 		}
 		cout << endl;
 		for(int c=0; c<this->instancia->getNumNodes()+1; c++){
-			cout << this->routes[r]->getBackward(c) << " " ;
+			cout << this->routes[r].getBackward(c) << " " ;
 		}
 		cout << endl;
 		cout << endl;
