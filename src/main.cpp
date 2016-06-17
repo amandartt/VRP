@@ -68,8 +68,8 @@ Solution simulatedAnnealing(double alfa, Solution s, double t0, int maxIterTemp)
 	Solution standartSolution(instance);
 	standartSolution = s;
 	bestSolution = s;
-	Solution auxSolution(instance);
-	auxSolution = s;
+	Solution currentSolution(instance);
+	currentSolution = s;
 	Neighborhood* nb = new Neighborhood(instance);
 	double iterTemp = 0;
 	double T = t0;
@@ -80,21 +80,23 @@ Solution simulatedAnnealing(double alfa, Solution s, double t0, int maxIterTemp)
 		while(iterTemp < maxIterTemp){
 			iterTemp += 1;
 			standartSolution = s;
-			auxSolution  = nb->interRoutes(s); //gera vizinho inter-rota aleatoriamente			
-	        auxSolution.forcaBrutaRecalculaSolution(); //calculando por enquanto na força bruta.
-	        
+			currentSolution  = nb->interRoutes(s); //gera vizinho inter-rota aleatoriamente					
 			
-			delta = auxSolution.getTotalCost() - s.getTotalCost();
+			//currentSolution.forcaBrutaRecalculaSolution(); //calculando por enquanto na força bruta.
+			//s.forcaBrutaRecalculaSolution(); //calculando por enquanto na força bruta.	        
+			
+			
+			delta = currentSolution.getTotalCost() - standartSolution.getTotalCost();
 			if(delta < 0){ //se a solução gerada é melhor que a antiga
-				s = auxSolution;
-				if(auxSolution.getTotalCost() < bestSolution.getTotalCost()){ //se a solução gerada é melhor que a melhor já encontrada
-					bestSolution = auxSolution;
-					bestSolution.printSolution();
+				s = currentSolution;
+				if(currentSolution.getTotalCost() < bestSolution.getTotalCost()){ //se a solução gerada é melhor que a melhor já encontrada
+					bestSolution = currentSolution;
+					//bestSolution.printSolution();
 				}
 			}else{ //verifica a probabilidade de aceitar a piora
 				x = (rand() % 100)/100; //0 a 0,99
 				if(x < exp(-delta/T)){ //constante k?
-					s = auxSolution;
+					s = currentSolution;
 				}else{
 				    s = standartSolution; //retorna a solução anterior;  
 				}
@@ -103,7 +105,7 @@ Solution simulatedAnnealing(double alfa, Solution s, double t0, int maxIterTemp)
 		T = T*alfa;
 		iterTemp = 0;
 	}
-    auxSolution.printSolution();
+
 	return bestSolution;
 }
 
@@ -122,7 +124,6 @@ Solution construction(){
 	
 	    initialSolution.getRoute(v)->setForward(indice, c); 
 	    initialSolution.getRoute(v)->setBackward(c, indice); 
-	    initialSolution.calculateTimeServiceAndFaults(indice, c, v);//atualizar tempo de atendimento do nodo, solução, tempo total da rota, infactibilidades e custo (cap. e janela) >> faz coisa demais!
 	}
 	
 	//força voltar para o depósito.
@@ -135,8 +136,9 @@ Solution construction(){
 	    initialSolution.getRoute(r)->setBackward(instance->getNumNodes(), indice); 
 	    initialSolution.calculateTimeServiceAndFaults(indice, instance->getNumNodes(), r);
 	}
+
+	initialSolution.forcaBrutaRecalculaSolution();
 	//Adcionar a função objetivo os custo das infactibilidades de capacidade janela de tempo.
-	initialSolution.setTotalCost(initialSolution.getTotalCost() + 1000*initialSolution.getDelayedArrivalCost() + 1000*initialSolution.getOverCapacitated());
     cout << endl << "----------------- SOLUCAO INICIAL ---------------------------" << endl << endl;
 	initialSolution.printSolution();   
 	return initialSolution;    	
