@@ -79,8 +79,9 @@ Solution Neighborhood::interRoutes(Solution s){
 
 int Neighborhood::clientesNaRota(Solution s, int route){
 	int hasClient = 0;
+	exit(0);
 	for(int i=1; i<this->instancia->getNumNodes(); i++){
-		if(s.getRoute(route)->getForward(i) != -1 && s.getRoute(route)->getForward(i) != this->instancia->getNumNodes()+1){
+		if(s.getRoute(route)->getForward(i) != -1 && s.getRoute(route)->getForward(i) != this->instancia->getNumNodes()){
 			hasClient++;
 			if(hasClient >= 2){
 				//cout << "mais de dois clientes na rota " << route << endl;
