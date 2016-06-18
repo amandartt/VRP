@@ -77,6 +77,101 @@ Solution Neighborhood::interRoutes(Solution s){
 }
 
 
+int Neighborhood::clientesNaRota(Solution s, int route){
+	int hasClient = 0;
+	for(int i=1; i<this->instancia->getNumNodes(); i++){
+		if(s.getRoute(route)->getForward(i) != -1 && s.getRoute(route)->getForward(i) != this->instancia->getNumNodes()+1){
+			hasClient++;
+			cout << "indice no " << i << endl;
+			if(hasClient >= 2){
+				cout << "mais de dois clientes na rota " << route << endl;
+				return 1;  // pelo menos dois clientes na rota
+			}
+		}
+	}
+	return 0;
+}
+
+Solution Neighborhood::intraRoutes(Solution s){
+
+	/* 
+	* seleciona aleatoriamente uma rota com ao menos dois clientes 
+	* para haver possibilidade de trocar dois arcos não adjacentes 
+	*/
+
+    //e se nenhuma rota possui 2 clientes? TODO: TENTAR GARANTIR ISSO ANTES DE CHAMAR ESSE METODO
+    
+    s.printSolution();
+    
+	int rota = rand() % this->instancia->getNumVehicles();
+	while(clientesNaRota(s, rota) == 0){
+		rota = rand() % this->instancia->getNumVehicles();
+	}
+	
+	cout << "rota selecionada " << rota << endl;
+
+	/*
+	* seleciona duas rotas aleatoriamente
+	* as arestas nao podem ser adjacentes    I - inicio aresta  F - fim aresta
+	*/
+
+	// primeira aresta
+	int aresta1I = rand() % this->instancia->getNumNodes();
+	int aresta1F = s.getRoute(rota)->getForward(aresta1I);
+
+	while (aresta1F == -1){
+		aresta1I = rand() % this->instancia->getNumNodes();
+	   	aresta1F = s.getRoute(rota)->getForward(aresta1I);
+	}
+
+	cout << "aresta 1: nodo1 selecionado " << aresta1I << endl;
+	cout << "aresta 1: nodo2 selecionado " << aresta1F << endl;
+
+	// segunda aresta
+	int aresta2I = rand() % this->instancia->getNumNodes();
+	int aresta2F = s.getRoute(rota)->getForward(aresta2I);
+
+	/* verifica adjacência de arcos */
+	while ((aresta2F == -1) || (aresta1F == aresta2I) || (aresta1I == aresta2I) || (aresta1I == aresta2F)){
+		aresta2I = rand() % this->instancia->getNumNodes();
+	   	aresta2F = s.getRoute(rota)->getForward(aresta2I);
+	}
+
+	cout << "aresta 2: nodo1 selecionado " << aresta2I << endl;
+	cout << "aresta 2: nodo2 selecionado " << aresta2F << endl;
+
+	
+	/** atualiza rota  forward**/
+	s.getRoute(rota)->setForward(aresta1I, aresta2I); 
+
+
+	int enteringNode = aresta1I;
+	int flippedNode = aresta2I;
+	int nextNode = aresta2I;
+
+	while(s.getRoute(rota)->getBackward( nextNode ) != aresta1I){
+		// nodo anterior passa a ser o nodo para qual se aponta
+		s.getRoute(rota)->setForward(nextNode, s.getRoute(rota)->getBackward(nextNode));
+		// guarda o nodo para atualizar na proxima iteração
+		flippedNode = s.getRoute(rota)->getBackward(nextNode);
+		
+		s.getRoute(rota)->setBackward(nextNode, enteringNode);
+		enteringNode = nextNode;
+		nextNode = flippedNode;
+	
+	}
+	s.getRoute(rota)->setForward(nextNode, aresta2F); 
+	s.getRoute(rota)->setBackward(aresta2F, nextNode);
+	
+	s.recalculateSolutionOnlyRoute(rota);
+	
+	s.printSolution();
+	exit(0);
+	return s;
+
+}
+
+
 
 
 

@@ -80,7 +80,8 @@ Solution simulatedAnnealing(double alfa, Solution s, double t0, int maxIterTemp)
 		while(iterTemp < maxIterTemp){
 			iterTemp += 1;
 			standartSolution = s;
-			currentSolution  = nb->interRoutes(s); //gera vizinho inter-rota aleatoriamente					
+			currentSolution  = nb->interRoutes(s); //gera vizinho inter-rota aleatoriamente	
+			currentSolution = nb->intraRoutes(currentSolution); 				
 			delta = currentSolution.getTotalCost() - standartSolution.getTotalCost();
 			
 			if(delta < 0){ //se a solução gerada é melhor que a antiga
