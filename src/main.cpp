@@ -81,17 +81,13 @@ Solution simulatedAnnealing(double alfa, Solution s, double t0, int maxIterTemp)
 			iterTemp += 1;
 			standartSolution = s;
 			currentSolution  = nb->interRoutes(s); //gera vizinho inter-rota aleatoriamente					
-			
-			//currentSolution.forcaBrutaRecalculaSolution(); //calculando por enquanto na força bruta.
-			//s.forcaBrutaRecalculaSolution(); //calculando por enquanto na força bruta.	        
-			
-			
 			delta = currentSolution.getTotalCost() - standartSolution.getTotalCost();
+			
 			if(delta < 0){ //se a solução gerada é melhor que a antiga
 				s = currentSolution;
 				if(currentSolution.getTotalCost() < bestSolution.getTotalCost()){ //se a solução gerada é melhor que a melhor já encontrada
 					bestSolution = currentSolution;
-					//bestSolution.printSolution();
+					cout << "Melhor solução: " << bestSolution.getTotalCost() << endl;
 				}
 			}else{ //verifica a probabilidade de aceitar a piora
 				x = (rand() % 100)/100; //0 a 0,99

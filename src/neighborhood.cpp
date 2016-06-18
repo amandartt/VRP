@@ -67,23 +67,11 @@ Solution Neighborhood::interRoutes(Solution s){
 	s = updateRota1(s, nodoSelected, rota1);
 	s = updateRota2(s, arestaI, rota2, nodoSelected);
 
-	cout << "porrota 1" << endl;
 	s.recalculateSolutionOnlyRoute(rota2);
-	cout << "porrota 2" << endl;
 	s.recalculateSolutionOnlyRoute(rota1);
-	s.printSolution();
-	double srota = s.getTotalCost();
 
-	cout << "porforcabruta" << endl;
-	s.forcaBrutaRecalculaSolution();
-	s.printSolution();
-	double sbruta = s.getTotalCost();
-	
 
-	if(srota != sbruta){
-		cout << "bruta " << sbruta << "  " << "srota  " << srota << endl;
-		exit(0);
-	}
+	//s.forcaBrutaRecalculaSolution();
 	
     return s;
 }
