@@ -82,9 +82,8 @@ int Neighborhood::clientesNaRota(Solution s, int route){
 	for(int i=1; i<this->instancia->getNumNodes(); i++){
 		if(s.getRoute(route)->getForward(i) != -1 && s.getRoute(route)->getForward(i) != this->instancia->getNumNodes()+1){
 			hasClient++;
-			cout << "indice no " << i << endl;
 			if(hasClient >= 2){
-				cout << "mais de dois clientes na rota " << route << endl;
+				//cout << "mais de dois clientes na rota " << route << endl;
 				return 1;  // pelo menos dois clientes na rota
 			}
 		}
@@ -101,14 +100,13 @@ Solution Neighborhood::intraRoutes(Solution s){
 
     //e se nenhuma rota possui 2 clientes? TODO: TENTAR GARANTIR ISSO ANTES DE CHAMAR ESSE METODO
     
-    s.printSolution();
     
 	int rota = rand() % this->instancia->getNumVehicles();
 	while(clientesNaRota(s, rota) == 0){
 		rota = rand() % this->instancia->getNumVehicles();
 	}
 	
-	cout << "rota selecionada " << rota << endl;
+	//cout << "rota selecionada " << rota << endl;
 
 	/*
 	* seleciona duas rotas aleatoriamente
@@ -124,8 +122,8 @@ Solution Neighborhood::intraRoutes(Solution s){
 	   	aresta1F = s.getRoute(rota)->getForward(aresta1I);
 	}
 
-	cout << "aresta 1: nodo1 selecionado " << aresta1I << endl;
-	cout << "aresta 1: nodo2 selecionado " << aresta1F << endl;
+	//cout << "aresta 1: nodo1 selecionado " << aresta1I << endl;
+	//cout << "aresta 1: nodo2 selecionado " << aresta1F << endl;
 
 	// segunda aresta
 	int aresta2I = rand() % this->instancia->getNumNodes();
@@ -137,8 +135,8 @@ Solution Neighborhood::intraRoutes(Solution s){
 	   	aresta2F = s.getRoute(rota)->getForward(aresta2I);
 	}
 
-	cout << "aresta 2: nodo1 selecionado " << aresta2I << endl;
-	cout << "aresta 2: nodo2 selecionado " << aresta2F << endl;
+	//cout << "aresta 2: nodo1 selecionado " << aresta2I << endl;
+	//cout << "aresta 2: nodo2 selecionado " << aresta2F << endl;
 
 	
 	/** atualiza rota  forward**/
@@ -165,8 +163,6 @@ Solution Neighborhood::intraRoutes(Solution s){
 	
 	s.recalculateSolutionOnlyRoute(rota);
 	
-	s.printSolution();
-	exit(0);
 	return s;
 
 }
