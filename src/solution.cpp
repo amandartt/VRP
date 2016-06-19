@@ -121,6 +121,7 @@ void Solution::forcaBrutaRecalculaSolution(){
 void Solution::printSolution(){
 
 	for(int r=0; r<this->instancia->getNumVehicles(); r++){
+	    cout << "Rota número: " << r << endl;
 		cout << "Total Time da rota: " << this->routes[r].getTotalTime() << endl;
 		cout << "Atrasos da rota: " << this->routes[r].getLateCost() << endl;
 		cout << "excesso de capacidade da rota: " << this->routes[r].getOverCapacitated() << endl;

@@ -79,17 +79,31 @@ Solution Neighborhood::interRoutes(Solution s){
 
 int Neighborhood::clientesNaRota(Solution s, int route){
 	int hasClient = 0;
-	exit(0);
-	for(int i=1; i<this->instancia->getNumNodes(); i++){
+
+	for(int i=0; i<this->instancia->getNumNodes(); i++){
 		if(s.getRoute(route)->getForward(i) != -1 && s.getRoute(route)->getForward(i) != this->instancia->getNumNodes()){
 			hasClient++;
-			if(hasClient >= 2){
-				//cout << "mais de dois clientes na rota " << route << endl;
+			if(hasClient >= 3){
 				return 1;  // pelo menos dois clientes na rota
 			}
 		}
 	}
+
 	return 0;
+}
+
+int Neighborhood::temAdjacencia(Solution s, int aresta2I, int aresta2F, int aresta1I, int aresta1F){
+    
+    if((aresta1I == 0 && aresta2F == this->instancia->getNumNodes())
+      || (aresta2I == 0 &&  aresta1F == this->instancia->getNumNodes())){ //adjacencia entre deposito
+        return 1;
+    }
+
+    /* verifica adjacência de arcos */
+	if(aresta2F != -1 && aresta1F != aresta2I && aresta1I != aresta2I && aresta1I != aresta2F){
+	    return 0;
+	}
+	return 1;
 }
 
 Solution Neighborhood::intraRoutes(Solution s){
@@ -99,51 +113,88 @@ Solution Neighborhood::intraRoutes(Solution s){
 	* para haver possibilidade de trocar dois arcos não adjacentes 
 	*/
 
-    //e se nenhuma rota possui 2 clientes? TODO: TENTAR GARANTIR ISSO ANTES DE CHAMAR ESSE METODO
-    
-    
+    //e se nenhuma rota possui 3 clientes? TODO: TENTAR GARANTIR ISSO ANTES DE CHAMAR ESSE METODO   
+    //funcao: alguma rota tem dois cliente, se não aborta.
 	int rota = rand() % this->instancia->getNumVehicles();
-	while(clientesNaRota(s, rota) == 0){
-		rota = rand() % this->instancia->getNumVehicles();
+	if(clientesNaRota(s, rota) == 0){
+	    s.recalculateSolutionOnlyRoute(rota);
+        return s;
 	}
 	
-	//cout << "rota selecionada " << rota << endl;
+	/*while(clientesNaRota(s, rota) == 0){
+		rota = rand() % this->instancia->getNumVehicles();
+	}*/
 
 	/*
-	* seleciona duas rotas aleatoriamente
-	* as arestas nao podem ser adjacentes    I - inicio aresta  F - fim aresta
+	* as arestas nao podem ser adjacentes,   I - inicio aresta  F - fim aresta
+	ADD :  NAO PODE TER ADJACENCIA DE DEPOSITO TB
+	       COM APENAS DOIS CLIENTES, DEPENDENDO DO CASO, SE SELECIONAR UMA ARESTA, NUNCA MAIS CONSEGUIRA SELECIONAR A SEGUNDA SEM ADJACENCIA << LOOP INFINITO! POR ISSO TEM QUE REESCALAR A PRIMEIRA ARESTA, SEMPRE.
 	*/
 
 	// primeira aresta
 	int aresta1I = rand() % this->instancia->getNumNodes();
 	int aresta1F = s.getRoute(rota)->getForward(aresta1I);
-
+    /* arco valido */
 	while (aresta1F == -1){
 		aresta1I = rand() % this->instancia->getNumNodes();
 	   	aresta1F = s.getRoute(rota)->getForward(aresta1I);
 	}
 
-	//cout << "aresta 1: nodo1 selecionado " << aresta1I << endl;
-	//cout << "aresta 1: nodo2 selecionado " << aresta1F << endl;
-
 	// segunda aresta
 	int aresta2I = rand() % this->instancia->getNumNodes();
 	int aresta2F = s.getRoute(rota)->getForward(aresta2I);
-
-	/* verifica adjacência de arcos */
-	while ((aresta2F == -1) || (aresta1F == aresta2I) || (aresta1I == aresta2I) || (aresta1I == aresta2F)){
+	/* arco valido */
+	while (aresta2F == -1){
 		aresta2I = rand() % this->instancia->getNumNodes();
 	   	aresta2F = s.getRoute(rota)->getForward(aresta2I);
 	}
-
-	//cout << "aresta 2: nodo1 selecionado " << aresta2I << endl;
-	//cout << "aresta 2: nodo2 selecionado " << aresta2F << endl;
-
 	
+	/* garante que não exista adjacências. */
+	while(temAdjacencia(s, aresta2I, aresta2F, aresta1I, aresta1F) == 1){
+	    
+	    aresta1I = rand() % this->instancia->getNumNodes();
+	    aresta1F = s.getRoute(rota)->getForward(aresta1I);
+        /* arco válido */
+	    while (aresta1F == -1){
+		    aresta1I = rand() % this->instancia->getNumNodes();
+	       	aresta1F = s.getRoute(rota)->getForward(aresta1I);
+	    }
+
+	    // segunda aresta
+	    int aresta2I = rand() % this->instancia->getNumNodes();
+	    int aresta2F = s.getRoute(rota)->getForward(aresta2I);
+	    /* arco válido */
+	    while (aresta2F == -1){
+		    aresta2I = rand() % this->instancia->getNumNodes();
+	       	aresta2F = s.getRoute(rota)->getForward(aresta2I);
+	    }
+	}
+
+    /* Garantir que inversão de rota não envolva inversão de depósitos */
+    
+    int currentNodo = 0;
+    while(s.getRoute(rota)->getForward(currentNodo) != this->instancia->getNumNodes()){
+        
+        if(currentNodo == aresta1I){ //primeiro que encontrou é a primeira aresta, ordenação ok.
+            break;
+        }
+        if(currentNodo== aresta2I){ //primeiro que encontrou é a segunda aresta, inverter ordenação.
+            int auxAresta1I = aresta1I;
+            int auxAresta1F = aresta1F;
+            aresta1I = aresta2I;
+            aresta1F = aresta2F;
+            aresta2I = auxAresta1I;
+            aresta2F = auxAresta1F; 
+            break;
+        }
+        currentNodo = s.getRoute(rota)->getForward(currentNodo);    
+    }
+	//cout << "sem adjacencia rota " << rota << endl;
+	//cout << "1I - 1F " << aresta1I << " " << aresta1F << endl;	
+    //cout << "2I - 2F " << aresta2I << " " << aresta2F << endl << endl<<endl<<endl;	
 	/** atualiza rota  forward**/
+
 	s.getRoute(rota)->setForward(aresta1I, aresta2I); 
-
-
 	int enteringNode = aresta1I;
 	int flippedNode = aresta2I;
 	int nextNode = aresta2I;
@@ -161,9 +212,9 @@ Solution Neighborhood::intraRoutes(Solution s){
 	}
 	s.getRoute(rota)->setForward(nextNode, aresta2F); 
 	s.getRoute(rota)->setBackward(aresta2F, nextNode);
+	s.getRoute(rota)->setBackward(nextNode, enteringNode);
 	
 	s.recalculateSolutionOnlyRoute(rota);
-	
 	return s;
 
 }

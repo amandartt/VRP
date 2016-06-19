@@ -18,6 +18,7 @@ public:
 	Solution updateRota1(Solution s, int nodoSelected, int rota1);
 	Solution updateRota2(Solution s, int arestaI, int rota2, int nodoSelected);
 	int clientesNaRota(Solution s, int route);
+	int temAdjacencia(Solution s, int aresta2I, int aresta2F, int aresta1I, int aresta1F);
 };
 
 

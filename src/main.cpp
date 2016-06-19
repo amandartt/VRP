@@ -27,21 +27,26 @@ double initialTemperature(double beta, double alfa, Solution s, int maxIterTemp,
 	bool continua = true; //
 	int aceitos = 0; //número de vizinhos aceitos na temperatura T
 	Solution auxSolution(instance);
+	Solution standartSolution(instance);
+	standartSolution = s;
 	double delta = 0;
 	double x;
 
 	while (continua){
 		aceitos = 0;
 		for(int i=0; i<maxIterTemp; i++){
+		    standartSolution = s;
 			auxSolution  = nb->interRoutes(s); //gera vizinho inter-rota aleatoriamente
-	        auxSolution.forcaBrutaRecalculaSolution(); //calculando por enquanto na força bruta.
-			delta = auxSolution.getTotalCost() - s.getTotalCost();
+			auxSolution = nb->intraRoutes(auxSolution);
+			delta = auxSolution.getTotalCost() - standartSolution.getTotalCost();
 			if(delta < 0){
 				aceitos++;
 			}else{ //verifica a probabilidade de aceitar a piora
 				x = (rand() % 100)/100; //0 a 0,99
-				if(x < exp(-delta/T)){ //constante k?
+				if(x < exp(-delta/T)){
 					aceitos++;
+				}else{
+				    s = standartSolution; //retorna a solução anterior;  
 				}
 			}
 		}
@@ -154,7 +159,7 @@ int main(int argc, char** argv){
 	Solution s = construction();
 
 	double t0 = initialTemperature(1.2, 0.95, s, instance->getNumNodes(), 2);
-	//cout << "temperatura inicial: " << t0 << endl;
+	cout << "temperatura inicial: " << t0 << endl;
 
 	s = simulatedAnnealing(0.998, s, t0, instance->getNumNodes()); //double alfa, Solution s, double t0, int maxIterTemp
     s.forcaBrutaRecalculaSolution();
