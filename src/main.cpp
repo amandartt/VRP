@@ -178,7 +178,6 @@ Solution constructionGuloso(){
 	}
     cout << endl << "----------------- SOLUCAO INICIAL ---------------------------" << endl << endl;
 	initialSolution.printSolution();  
-	exit(0);
 	return initialSolution; 
 }
 
