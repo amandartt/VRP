@@ -111,8 +111,79 @@ Solution simulatedAnnealing(double alfa, Solution s, double t0, int maxIterTemp)
 	return bestSolution;
 }
 
+//construtivo guloso
+Solution constructionGuloso(){
+
+    Solution initialSolution(instance);
+	int veiculos = instance->getNumVehicles();
+	int endNode = 0;
+	int forwardNodoI = 0;
+	int bestRoute = 0;
+	unsigned int costBestRoute = instance->getNumNodes()*10000000;
+	int forwardNodoSelected = 0;
+	int backwardNodoSelected = 0;
+	
+	//Inicializa todas as rotas.
+	for(int v=0; v<veiculos; v++){
+	    initialSolution.getRoute(v)->setForward(0, instance->getNumNodes());
+	    initialSolution.getRoute(v)->setBackward(instance->getNumNodes(), 0);
+	}
+    initialSolution.forcaBrutaRecalculaSolution();
+	
+	//Para cada cliente, é escolhido a rota onde ele causa menos custo.
+	for(int c=1;  c<instance->getNumNodes(); c++){
+	    costBestRoute = instance->getNumNodes()*10000000;
+	    //Avalia todas as rotas inserindo o cliente, escolhe a que causa menor impacto.
+	    for(int v=0; v<veiculos; v++){
+	    
+	        //Último nodo inserido
+	        endNode = initialSolution.getRoute(v)->getBackward(instance->getNumNodes());
+	        
+	        //insere cliente na rota.    
+	        forwardNodoI = initialSolution.getRoute(v)->getForward(endNode);
+	        initialSolution.getRoute(v)->setForward(endNode, c);
+	        initialSolution.getRoute(v)->setForward(c, forwardNodoI);	
+	        initialSolution.getRoute(v)->setBackward(c, endNode);
+	        initialSolution.getRoute(v)->setBackward(forwardNodoI, c);
+	        
+	        //calcula custo.
+	        initialSolution.recalculateSolutionOnlyRoute(v);
+
+	        if(initialSolution.getTotalCost() < costBestRoute){
+	            bestRoute = v;
+	            costBestRoute = initialSolution.getTotalCost();
+	        }   
+	        
+	        //retira nodo da rota
+	        forwardNodoSelected = initialSolution.getRoute(v)->getForward(c);
+	        backwardNodoSelected = initialSolution.getRoute(v)->getBackward(c);
+	        initialSolution.getRoute(v)->setForward(c, -1);
+	        initialSolution.getRoute(v)->setForward(backwardNodoSelected, forwardNodoSelected);	
+	        initialSolution.getRoute(v)->setBackward(c, -1);
+	        initialSolution.getRoute(v)->setBackward(forwardNodoSelected, backwardNodoSelected);
+	        initialSolution.recalculateSolutionOnlyRoute(v);
+	    }
+	    
+	    //insere cliente na melhor rota
+	    endNode = initialSolution.getRoute(bestRoute)->getBackward(instance->getNumNodes());
+        forwardNodoI = initialSolution.getRoute(bestRoute)->getForward(endNode);
+        initialSolution.getRoute(bestRoute)->setForward(endNode, c);
+        initialSolution.getRoute(bestRoute)->setForward(c, forwardNodoI);	
+        initialSolution.getRoute(bestRoute)->setBackward(c, endNode);
+        initialSolution.getRoute(bestRoute)->setBackward(forwardNodoI, c);
+        
+        //calcula custo.
+        initialSolution.recalculateSolutionOnlyRoute(bestRoute);
+	    
+	}
+    cout << endl << "----------------- SOLUCAO INICIAL ---------------------------" << endl << endl;
+	initialSolution.printSolution();  
+	exit(0);
+	return initialSolution; 
+}
+
 //Construtivo Aleatório
-Solution construction(){
+Solution constructionAleatorio(){
     
     Solution initialSolution(instance);
 	int veiculos = instance->getNumVehicles();
@@ -146,7 +217,6 @@ Solution construction(){
 	return initialSolution;    	
 }
 
-
 int main(int argc, char** argv){
 
     time_t seconds;
@@ -156,7 +226,7 @@ int main(int argc, char** argv){
 
     instance->readFile();
 	//instance->createGLPKinstanceFile();
-	Solution s = construction();
+	Solution s = constructionGuloso();
 
 	double t0 = initialTemperature(1.2, 0.95, s, instance->getNumNodes(), 2);
 	cout << "temperatura inicial: " << t0 << endl;
